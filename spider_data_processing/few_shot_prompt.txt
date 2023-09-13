@@ -1,0 +1,368 @@
+CREATE TABLE "Songs" ( 
+	"SongId" INTEGER PRIMARY KEY, 
+	"Title" TEXT 
+);
+CREATE TABLE "Albums" ( 
+	"AId" INTEGER PRIMARY KEY, 
+	"Title" TEXT, 
+	"Year" INTEGER, 
+	"Label" TEXT, 
+	"Type" TEXT );
+CREATE TABLE "Band" ( 
+	"Id" INTEGER PRIMARY KEY, 
+	"Firstname" TEXT, 
+	"Lastname" TEXT );
+CREATE TABLE "Instruments" ( 
+	"SongId" INTEGER, 
+	"BandmateId" INTEGER, 
+	"Instrument" TEXT ,
+	PRIMARY KEY(SongId, BandmateId, Instrument),
+	FOREIGN KEY (SongId) REFERENCES Songs(SongId),
+	FOREIGN KEY (BandmateId) REFERENCES Band(Id)
+);
+CREATE TABLE "Performance" ( 
+	"SongId" INTEGER, 
+	"Bandmate" INTEGER, 
+	"StagePosition" TEXT,
+	PRIMARY KEY(SongId, Bandmate),
+	FOREIGN KEY (SongId) REFERENCES Songs(SongId),
+	FOREIGN KEY (Bandmate) REFERENCES Band(Id)
+);
+CREATE TABLE "Tracklists" ( 
+	"AlbumId" INTEGER, 
+	"Position" INTEGER, 
+	"SongId" INTEGER ,
+	PRIMARY KEY(AlbumId, Position),
+	FOREIGN KEY (SongId) REFERENCES Songs(SongId),
+	FOREIGN KEY (AlbumId) REFERENCES Albums(AId)
+);
+CREATE TABLE "Vocals" ( 
+	"SongId" INTEGER, 
+	"Bandmate" INTEGER, 
+	"Type" TEXT,
+	PRIMARY KEY(SongId, Bandmate),
+	FOREIGN KEY (SongId) REFERENCES Songs(SongId),
+	FOREIGN KEY (Bandmate) REFERENCES Band(Id)
+);
+Translate the following question into SQL.
+Question: Who performed the song named "Le Pop"?
+SQL: SELECT T2.firstname ,  T2.lastname FROM Performance AS T1 JOIN Band AS T2 ON T1.bandmate  =  T2.id JOIN Songs AS T3 ON T3.SongId  =  T1.SongId WHERE T3.Title  =  "Le Pop"
+
+CREATE TABLE Customers (
+Customer_ID INTEGER NOT NULL,
+Customer_name VARCHAR(40),
+PRIMARY KEY (Customer_ID)
+);
+INSERT INTO `Customers` (`Customer_ID`, `Customer_name`) VALUES (194, 'America Jaskolski');
+CREATE TABLE Services (
+Service_ID INTEGER NOT NULL,
+Service_name VARCHAR(40),
+PRIMARY KEY (Service_ID)
+);
+INSERT INTO `Services` (`Service_ID`, `Service_name`) VALUES (1, 'New policy application');
+CREATE TABLE Available_Policies (
+Policy_ID INTEGER NOT NULL,
+policy_type_code CHAR(15),
+Customer_Phone VARCHAR(255),
+PRIMARY KEY (Policy_ID),
+UNIQUE (Policy_ID)
+);
+INSERT INTO `Available_Policies` (`Policy_ID`, `policy_type_code`, `Customer_Phone`) VALUES (246, 'Life Insurance', '+16(2)5838999222');
+CREATE TABLE Customers_Policies (
+Customer_ID INTEGER NOT NULL,
+Policy_ID INTEGER NOT NULL,
+Date_Opened DATE,
+Date_Closed DATE,
+PRIMARY KEY (Customer_ID, Policy_ID),
+FOREIGN KEY (Customer_ID) REFERENCES Customers (Customer_ID),
+FOREIGN KEY (Policy_ID) REFERENCES Available_Policies (Policy_ID)
+);
+INSERT INTO `Customers_Policies` (`Customer_ID`, `Policy_ID`, `Date_Opened`, `Date_Closed`) VALUES (214, 257, '2016-11-19', '2018-03-04');
+CREATE TABLE First_Notification_of_Loss (
+FNOL_ID INTEGER NOT NULL,
+Customer_ID INTEGER NOT NULL,
+Policy_ID INTEGER NOT NULL,
+Service_ID INTEGER NOT NULL,
+PRIMARY KEY (FNOL_ID),
+UNIQUE (FNOL_ID),
+FOREIGN KEY (Service_ID) REFERENCES Services (Service_ID),
+FOREIGN KEY (Customer_ID, Policy_ID) REFERENCES Customers_Policies (Customer_ID,Policy_ID)
+);
+INSERT INTO `First_Notification_of_Loss` (`FNOL_ID`, `Customer_ID`, `Policy_ID`, `Service_ID`) VALUES (532, 214, 257, 6);
+CREATE TABLE Claims (
+Claim_ID INTEGER NOT NULL,
+FNOL_ID INTEGER NOT NULL,
+Effective_Date DATE,
+PRIMARY KEY (Claim_ID),
+UNIQUE (Claim_ID),
+FOREIGN KEY (FNOL_ID) REFERENCES First_Notification_of_Loss (FNOL_ID)
+);
+INSERT INTO `Claims` (`Claim_ID`, `FNOL_ID`, `Effective_Date`) VALUES (134, 1722, '1973-08-18');
+CREATE TABLE Settlements (
+Settlement_ID INTEGER NOT NULL,
+Claim_ID INTEGER,
+Effective_Date DATE,
+Settlement_Amount REAL,
+PRIMARY KEY (Settlement_ID),
+UNIQUE (Settlement_ID),
+FOREIGN KEY (Claim_ID) REFERENCES Claims (Claim_ID)
+);
+INSERT INTO `Settlements` (`Settlement_ID`, `Claim_ID`, `Effective_Date`, `Settlement_Amount`) VALUES (161, 717, '2009-11-20', '6451.65');
+Translate the following question into SQL.
+Question: Tell me the types of the policy used by the customer named "Dayana Robel".
+SQL: SELECT DISTINCT t3.policy_type_code FROM customers AS t1 JOIN customers_policies AS t2 ON t1.customer_id  =  t2.customer_id JOIN available_policies AS t3 ON t2.policy_id  =  t3.policy_id WHERE t1.customer_name  =  "Dayana Robel"
+
+CREATE TABLE station (
+    id INTEGER PRIMARY KEY,
+    name TEXT,
+    lat NUMERIC,
+    long NUMERIC,
+    dock_count INTEGER,
+    city TEXT,
+    installation_date TEXT);
+INSERT INTO "station" VALUES(2,'San Jose Diridon Caltrain Station',37.329732,-1.21901782000000011405e+02,27,'San Jose','8/6/2013');
+CREATE TABLE status (
+    station_id INTEGER,
+    bikes_available INTEGER,
+    docks_available INTEGER,
+    time TEXT,
+    FOREIGN KEY (station_id) REFERENCES station(id)
+);
+INSERT INTO "status" VALUES(3,12,3,'2015-06-02 12:46:02');
+CREATE TABLE trip (
+    id INTEGER PRIMARY KEY,
+    duration INTEGER,
+    start_date TEXT,
+    start_station_name TEXT, -- this should be removed
+    start_station_id INTEGER,
+    end_date TEXT,
+    end_station_name TEXT, -- this should be removed
+    end_station_id INTEGER,
+    bike_id INTEGER,
+    subscription_type TEXT,
+    zip_code INTEGER);
+INSERT INTO "trip" VALUES(900504,384,'8/21/2015 17:03','Howard at 2nd',63,'8/21/2015 17:10','San Francisco Caltrain 2 (330 Townsend)',69,454,'Subscriber',94041);
+CREATE TABLE weather (
+    date TEXT,
+    max_temperature_f INTEGER,
+    mean_temperature_f INTEGER,
+    min_temperature_f INTEGER,
+    max_dew_point_f INTEGER,
+    mean_dew_point_f INTEGER,
+    min_dew_point_f INTEGER,
+    max_humidity INTEGER,
+    mean_humidity INTEGER,
+    min_humidity INTEGER,
+    max_sea_level_pressure_inches NUMERIC,
+    mean_sea_level_pressure_inches NUMERIC,
+    min_sea_level_pressure_inches NUMERIC,
+    max_visibility_miles INTEGER,
+    mean_visibility_miles INTEGER,
+    min_visibility_miles INTEGER,
+    max_wind_Speed_mph INTEGER,
+    mean_wind_speed_mph INTEGER,
+    max_gust_speed_mph INTEGER,
+    precipitation_inches INTEGER,
+    cloud_cover INTEGER,
+    events TEXT,
+    wind_dir_degrees INTEGER,
+    zip_code INTEGER);
+INSERT INTO "weather" VALUES('8/29/2013',74,68,61,61,58,56,93,75,57,30.07,30.02,29.97,10,10,10,23,11,28,0,4,'',286,94107);
+Translate the following question into SQL.
+Question: What are the different ids and names of the stations that have had more than 12 bikes available?
+SQL: SELECT DISTINCT T1.id ,  T1.name FROM station AS T1 JOIN status AS T2 ON T1.id  =  T2.station_id WHERE T2.bikes_available  >  12
+
+CREATE TABLE `Addresses` (
+`address_id` INTEGER PRIMARY KEY,
+`address_content` VARCHAR(80),
+`city` VARCHAR(50),
+`zip_postcode` VARCHAR(20),
+`state_province_county` VARCHAR(50),
+`country` VARCHAR(50),
+`other_address_details` VARCHAR(255)
+);
+INSERT INTO Addresses (`address_id`, `address_content`, `city`, `zip_postcode`, `state_province_county`, `country`, `other_address_details`) VALUES (1, '9443 Boyle Route Suite 857', 'Lucasville', '416', 'Colorado', 'USA', NULL);
+CREATE TABLE `Products` (
+`product_id` INTEGER PRIMARY KEY,
+`product_details` VARCHAR(255)
+);
+INSERT INTO Products (`product_id`, `product_details`) VALUES (1, 'Americano');
+CREATE TABLE `Customers` (
+`customer_id` INTEGER PRIMARY KEY,
+`payment_method` VARCHAR(15) NOT NULL,
+`customer_name` VARCHAR(80),
+`date_became_customer` DATETIME,
+`other_customer_details` VARCHAR(255)
+);
+INSERT INTO Customers (`customer_id`, `payment_method`, `customer_name`, `date_became_customer`, `other_customer_details`) VALUES (1, 'Cash', 'Dr. Julia Wuckert MD', '2018-03-01 23:20:10', NULL);
+CREATE TABLE `Customer_Addresses` (
+`customer_id` INTEGER NOT NULL,
+`address_id` INTEGER NOT NULL,
+`date_address_from` DATETIME NOT NULL,
+`address_type` VARCHAR(15) NOT NULL,
+`date_address_to` DATETIME,
+FOREIGN KEY (`address_id` ) REFERENCES `Addresses`(`address_id` ),
+FOREIGN KEY (`customer_id` ) REFERENCES `Customers`(`customer_id` )
+);
+INSERT INTO Customer_Addresses (`customer_id`, `address_id`, `date_address_from`, `address_type`, `date_address_to`) VALUES (2, 11, '1985-03-29 20:31:43', 'Billing', '1993-02-17 17:55:18');
+CREATE TABLE `Customer_Contact_Channels` (
+`customer_id` INTEGER NOT NULL,
+`channel_code` VARCHAR(15) NOT NULL,
+`active_from_date` DATETIME NOT NULL,
+`active_to_date` DATETIME,
+`contact_number` VARCHAR(50) NOT NULL,
+FOREIGN KEY (`customer_id` ) REFERENCES `Customers`(`customer_id` )
+);
+INSERT INTO Customer_Contact_Channels (`customer_id`, `channel_code`, `active_from_date`, `active_to_date`, `contact_number`) VALUES (9, 'Email', '2017-12-07 18:18:15', '2018-03-23 13:37:14', '940.035.6435x0225');
+CREATE TABLE `Customer_Orders` (
+`order_id` INTEGER PRIMARY KEY,
+`customer_id` INTEGER NOT NULL,
+`order_status` VARCHAR(15) NOT NULL,
+`order_date` DATETIME,
+`order_details` VARCHAR(255),
+FOREIGN KEY (`customer_id` ) REFERENCES `Customers`(`customer_id` )
+);
+INSERT INTO Customer_Orders (`order_id`, `customer_id`, `order_status`, `order_date`, `order_details`) VALUES (1, 15, 'Cancelled', '2018-03-21 11:20:46', NULL);
+CREATE TABLE `Order_Items` (
+`order_id` INTEGER NOT NULL,
+`product_id` INTEGER NOT NULL,
+`order_quantity` VARCHAR(15),
+FOREIGN KEY (`product_id` ) REFERENCES `Products`(`product_id` ),
+FOREIGN KEY (`order_id` ) REFERENCES `Customer_Orders`(`order_id` )
+);
+INSERT INTO Order_Items (`order_id`, `product_id`, `order_quantity`) VALUES (14, 2, '5');
+Translate the following question into SQL.
+Question: Which customer's name contains "Alex"? Find the full name.
+SQL: SELECT customer_name FROM customers WHERE customer_name LIKE "%Alex%"
+
+CREATE TABLE "repair" (
+"repair_ID" int,
+"name" text,
+"Launch_Date" text,
+"Notes" text,
+PRIMARY KEY ("repair_ID")
+);
+INSERT INTO  "repair" VALUES (1,"Discoverer","21 Jan 2009","repair Failed. Failed to achieve orbit");
+CREATE TABLE "machine" (
+"Machine_ID" int,
+"Making_Year" int,
+"Class" text,
+"Team" text,
+"Machine_series" text,
+"value_points" real,
+"quality_rank" int,
+PRIMARY KEY ("Machine_ID")
+);
+INSERT INTO  "machine" VALUES (1,"1991","125cc","Hero Sports TS- Honda","RS125","105",2);
+CREATE TABLE "technician" (
+"technician_id" real,
+"Name" text,
+"Team" text,
+"Starting_Year" real,
+"Age" int,
+PRIMARY Key ("technician_id")
+);
+INSERT INTO  "technician" VALUES ("1","Joe Sewell","NYY","2012",37);
+CREATE TABLE "repair_assignment" (
+"technician_id" int,
+"repair_ID" int,
+"Machine_ID" int,
+PRIMARY Key ("technician_id","repair_ID","Machine_ID"),
+FOREIGN KEY (`technician_id`) REFERENCES `technician`(`technician_id`),
+FOREIGN KEY (`repair_ID`) REFERENCES `repair`(`repair_ID`),
+FOREIGN KEY (`Machine_ID`) REFERENCES `machine`(`Machine_ID`)
+);
+INSERT INTO  "repair_assignment" VALUES (1,1,1);
+Translate the following question into SQL.
+Question: Show names of technicians in ascending order of quality rank of the machine they are assigned.
+SQL: SELECT T3.Name FROM repair_assignment AS T1 JOIN machine AS T2 ON T1.machine_id  =  T2.machine_id JOIN technician AS T3 ON T1.technician_ID  =  T3.technician_ID ORDER BY T2.quality_rank
+
+CREATE TABLE "company" (
+"Company_ID" int,
+"Rank" int,
+"Company" text,
+"Headquarters" text,
+"Main_Industry" text,
+"Sales_billion" real,
+"Profits_billion" real,
+"Assets_billion" real,
+"Market_Value" real,
+PRIMARY KEY ("Company_ID")
+);
+INSERT INTO  "company" VALUES (1,"1","ExxonMobil","USA","Oil and gas","433.5","41.1","331.1","407.4");
+CREATE TABLE "gas_station" (
+"Station_ID" int,
+"Open_Year" int,
+"Location" text,
+"Manager_Name" text,
+"Vice_Manager_Name" text,
+"Representative_Name" text,
+PRIMARY KEY ("Station_ID")
+);
+INSERT INTO  "gas_station" VALUES (1,"1998","Herne Hill","BrianWingrave","Russell Denman","Clive Burr");
+CREATE TABLE "station_company" (
+"Station_ID" int,
+"Company_ID" int,
+"Rank_of_the_Year" int,
+PRIMARY KEY ("Station_ID","Company_ID"),
+FOREIGN KEY (`Station_ID`) REFERENCES `gas_station`(`Station_ID`),
+FOREIGN KEY (`Company_ID`) REFERENCES `company`(`Company_ID`)
+);
+INSERT INTO  "station_company" VALUES (11,1,1);
+Translate the following question into SQL.
+Question: For each headquarter, what are the headquarter and how many companies are centered there?
+SQL: SELECT headquarters ,  count(*) FROM company GROUP BY headquarters
+
+CREATE TABLE IF NOT EXISTS "Web_client_accelerator" (
+"id" int,
+"name" text,
+"Operating_system" text,
+"Client" text,
+"Connection" text,
+primary key("id")
+);
+INSERT INTO Web_client_accelerator VALUES(1,'CACHEbox','Appliance (Linux)','End user, ISP','Broadband, Satellite, Wireless, Fiber, DSL');
+CREATE TABLE IF NOT EXISTS "browser" (
+"id" int,
+"name" text,
+"market_share" real,
+primary key("id")
+);
+INSERT INTO browser VALUES(1,'Internet Explorer',28.960000000000000852);
+CREATE TABLE IF NOT EXISTS "accelerator_compatible_browser" (
+"accelerator_id" int,
+"browser_id" int,
+"compatible_since_year" int,
+primary key("accelerator_id", "browser_id"),
+foreign key ("accelerator_id") references `Web_client_accelerator`("id"),
+foreign key ("browser_id") references `browser`("id")
+);
+INSERT INTO accelerator_compatible_browser VALUES(1,1,1995);
+Translate the following question into SQL.
+Question: List the ids, names and market shares of all browsers.
+SQL: SELECT id ,  name ,  market_share FROM browser
+
+CREATE TABLE "mountain" (
+"Mountain_ID" int,
+"Name" text,
+"Height" real,
+"Prominence" real,
+"Range" text,
+"Country" text,
+PRIMARY KEY ("Mountain_ID")
+);
+INSERT INTO  "mountain" VALUES (1,"Kibo (Uhuru Pk)","5895","5885","Kilimanjaro","Tanzania");
+CREATE TABLE "climber" (
+"Climber_ID" int,
+"Name" text,
+"Country" text,
+"Time" text,
+"Points" real,
+"Mountain_ID" int,
+PRIMARY KEY ("Climber_ID"),
+FOREIGN KEY ("Mountain_ID") REFERENCES "mountain"("Mountain_ID")
+);
+INSERT INTO  "climber" VALUES ("1","Klaus Enders","West Germany","1:13.05.6","15",1);
+Translate the following question into SQL.
+Question: What are the names of countains that no climber has climbed?
+SQL: SELECT Name FROM mountain WHERE Mountain_ID NOT IN (SELECT Mountain_ID FROM climber)
